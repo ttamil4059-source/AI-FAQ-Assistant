@@ -1,0 +1,106 @@
+From the screenshot, the project appears to use:
+
+Backend: Node.js + Express.js
+
+Database: MongoDB + Mongoose
+
+Authentication: JWT + bcrypt
+
+AI/FAQ functionality: automated FAQ generation, semantic search, dynamic context parsing
+
+Security: centralized error handling and response sanitization
+
+Team project: API/backend-focused
+
+Suggested project structure
+AI-FAQ-Assistant/
+│
+├── src/
+│   ├── config/
+│   │   └── db.js
+│   │
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   ├── faqController.js
+│   │   └── searchController.js
+│   │
+│   ├── middleware/
+│   │   ├── authMiddleware.js
+│   │   ├── errorMiddleware.js
+│   │   └── sanitizeMiddleware.js
+│   │
+│   ├── models/
+│   │   ├── User.js
+│   │   └── FAQ.js
+│   │
+│   ├── routes/
+│   │   ├── authRoutes.js
+│   │   ├── faqRoutes.js
+│   │   └── searchRoutes.js
+│   │
+│   ├── services/
+│   │   ├── faqService.js
+│   │   └── searchService.js
+│   │
+│   ├── utils/
+│   │   └── generateToken.js
+│   │
+│   └── app.js
+│
+├── .env
+├── .gitignore
+├── package.json
+└── server.js
+
+Main API endpoints
+POST   /api/auth/register
+POST   /api/auth/login
+
+GET    /api/faqs
+POST   /api/faqs
+GET    /api/faqs/:id
+PUT    /api/faqs/:id
+DELETE /api/faqs/:id
+
+POST   /api/search
+POST   /api/faqs/generate
+
+For example, the basic Express server would start with:
+
+const express = require("express");
+const mongoose = require("mongoose");
+require("dotenv").config();
+
+const app = express();
+
+app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.json({
+    message: "AI FAQ Assistant API is running"
+  });
+});
+
+app.use("/api/auth", require("./src/routes/authRoutes"));
+app.use("/api/faqs", require("./src/routes/faqRoutes"));
+app.use("/api/search", require("./src/routes/searchRoutes"));
+
+app.use((err, req, res, next) => {
+  console.error(err);
+
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal server error"
+  });
+});
+
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    app.listen(process.env.PORT || 5000, () => {
+      console.log("Server running");
+    });
+  })
+  .catch((error) => {
+    console.error("MongoDB connection failed:", error);
+  });
